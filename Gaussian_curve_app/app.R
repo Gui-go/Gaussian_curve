@@ -18,54 +18,71 @@ server <- function(input, output) {
  
     output$ui_out <- renderUI({
         fluidPage(
-            numericInput(inputId = "mean_input", label = "Média", value = 0, step = 1),
-            numericInput(inputId = "sd_input", label = "Desvio Padrão", value = 1, step = 1, min = 0.1),
-            selectInput(inputId = "v_p_input", label = "Tipo", choices = c("Por valores", "Por percentagem")),
-            conditionalPanel(condition = "input.v_p_input == 'Por valores'",
-                             selectInput(inputId = "tipo_input", label = "Seletor", choices = c("Entre", "Maior que", "Menor que"), selected = "Entre"),
-                             conditionalPanel(
-                                 condition = "input.tipo_input == 'Entre'",
-                                 numericInput(inputId = "input_x1", label = "a", value = -1, step = 1),
-                                 numericInput(inputId = "input_x2", label = "b", value = 1, step = 1)
-                             ),
-                             conditionalPanel(
-                                 condition = "input.tipo_input == 'Maior que'",
-                                 numericInput(inputId = "input_x1_ma", label = "a", value = -1, step = 1)
-                             ),
-                             conditionalPanel(
-                                 condition = "input.tipo_input == 'Menor que'",
-                                 numericInput(inputId = "input_x1_me", label = "a", value = 1, step = 1)
-                             )),
-            conditionalPanel(condition = "input.v_p_input == 'Por percentagem'",
-                             selectInput(inputId = "tipo_p_input", label = "Seletor", choices = c("Entre", "Maior que", "Menor que"), selected = "Entre"),
-                             conditionalPanel(
-                                 condition = "input.tipo_p_input == 'Entre'",
-                                 numericInput(inputId = "input_p_x1", label = "a", value = 0.5, min = 0, max = 0.99, step = 0.05)
-                             ),
-                             conditionalPanel(
-                                 condition = "input.tipo_p_input == 'Maior que'",
-                                 numericInput(inputId = "input_p_x1_ma", label = "a", value = 0.5, min = 0.5, max = 0.99, step = 0.05)
-                             ),
-                             conditionalPanel(
-                                 condition = "input.tipo_p_input == 'Menor que'",
-                                 numericInput(inputId = "input_p_x1_me", label = "a", value = 0.5, min = 0, max = 0.99, step = 0.05)
-                             ))
+            fluidRow(
+                selectInput(inputId = "v_p_input", label = "Tipo", choices = c("Por valores", "Por percentagem")),
+                conditionalPanel(condition = "input.v_p_input == 'Por valores'",
+                                 selectInput(inputId = "tipo_input", label = "Seletor", choices = c("Entre", "Maior que", "Menor que"), selected = "Entre"),
+                                 actionButton(inputId = "conf_input", label = "Configurar"),
+                                 hr(),
+                                 numericInput(inputId = "mean_input", label = "Média", value = 0, step = 1),
+                                 numericInput(inputId = "sd_input", label = "Desvio Padrão", value = 1, step = 1, min = 0.1),
+                                 conditionalPanel(
+                                     condition = "input.tipo_input == 'Entre'",
+                                     numericInput(inputId = "input_x1", label = "a", value = -1, step = 1),
+                                     numericInput(inputId = "input_x2", label = "b", value = 1, step = 1)
+                                 ),
+                                 conditionalPanel(
+                                     condition = "input.tipo_input == 'Maior que'",
+                                     numericInput(inputId = "input_x1_ma", label = "a", value = -1, step = 1)
+                                 ),
+                                 conditionalPanel(
+                                     condition = "input.tipo_input == 'Menor que'",
+                                     numericInput(inputId = "input_x1_me", label = "a", value = 1, step = 1)
+                                 )),
+                conditionalPanel(condition = "input.v_p_input == 'Por percentagem'",
+                                 selectInput(inputId = "tipo_p_input", label = "Seletor", choices = c("Entre", "Maior que", "Menor que"), selected = "Entre"),
+                                 numericInput(inputId = "mean_input", label = "Média", value = 0, step = 1),
+                                 numericInput(inputId = "sd_input", label = "Desvio Padrão", value = 1, step = 1, min = 0.1),
+                                 conditionalPanel(
+                                     condition = "input.tipo_p_input == 'Entre'",
+                                     numericInput(inputId = "input_p_x1", label = "a", value = 0.5, min = 0, max = 0.99, step = 0.05)
+                                 ),
+                                 conditionalPanel(
+                                     condition = "input.tipo_p_input == 'Maior que'",
+                                     numericInput(inputId = "input_p_x1_ma", label = "a", value = 0.5, min = 0.5, max = 0.99, step = 0.05)
+                                 ),
+                                 conditionalPanel(
+                                     condition = "input.tipo_p_input == 'Menor que'",
+                                     numericInput(inputId = "input_p_x1_me", label = "a", value = 0.5, min = 0, max = 0.99, step = 0.05)
+                                 )),
+                hr(),
+                actionButton(inputId = "ir_input", label = "Ir")
+            )
         )
     })
 
 
+    
+    
+    
     prob_reac <- reactive(
+        
+        
+        
         if(input$v_p_input == 'Por valores' && input$tipo_input == 'Entre'){(pnorm(q = input$input_x2, mean = input$mean_input, sd = input$sd_input) - pnorm(q = input$input_x1, mean = input$mean_input, sd = input$sd_input))} else
         if(input$v_p_input == 'Por valores' && input$tipo_input == 'Maior que'){1-pnorm(q = input$input_x1_ma, mean = input$mean_input, sd = input$sd_input)} else
         if(input$v_p_input == 'Por valores' && input$tipo_input == 'Menor que'){pnorm(q = input$input_x1_me, mean = input$mean_input, sd = input$sd_input)} else
 
-        if(input$v_p_input == 'Por percen\tagem' && input$tipo_input == 'Entre' && input$input_p_x1 == 1){(tigerstats::qnormGC(region = "between", area = 0.99999, mean = input$mean_input, sd = input$sd_input, graph = F))} else
-        if(input$v_p_input == 'Por percentagem' && input$tipo_input == 'Maior que' && input$input_p_x1_ma == 1){(tigerstats::qnormGC(region = "above", area = 0.99999, mean = input$mean_input, sd = input$sd_input, graph = F))} else
-        if(input$v_p_input == 'Por percentagem' && input$tipo_input == 'Menor que' && input$input_p_x1_me == 1){(tigerstats::qnormGC(region = "below", area = 0.99999, mean = input$mean_input, sd = input$sd_input, graph = F))} else
+        if(input$v_p_input == 'Por percentagem' && input$tipo_input == 'Entre' && input$input_p_x1 == 1){(tigerstats::qnormGC(region = "between", area = 0.99999, mean = input$mean_input, sd = input$sd_input, graph = F))} else
+        if(input$v_p_input == 'Por percentagem' && input$tipo_input == 'Maior que' && input$input_p_x1_ma == 1 && input$input_p_x1 == 1){(tigerstats::qnormGC(region = "above", area = 0.99999, mean = input$mean_input, sd = input$sd_input, graph = F))} else
+        if(input$v_p_input == 'Por percentagem' && input$tipo_input == 'Menor que' && input$input_p_x1_me == 1 && input$input_p_x1 == 1){(tigerstats::qnormGC(region = "below", area = 0.99999, mean = input$mean_input, sd = input$sd_input, graph = F))} else
 
         if(input$v_p_input == 'Por percentagem' && input$tipo_p_input == 'Entre'){(tigerstats::qnormGC(region = "between", area = input$input_p_x1, mean = input$mean_input, sd = input$sd_input, graph = F))} else
         if(input$v_p_input == 'Por percentagem' && input$tipo_p_input == 'Maior que'){(tigerstats::qnormGC(region = "above", area = input$input_p_x1_ma, mean = input$mean_input, sd = input$sd_input, graph = F))} else
         if(input$v_p_input == 'Por percentagem' && input$tipo_p_input == 'Menor que'){(tigerstats::qnormGC(region = "below", area = input$input_p_x1_me, mean = input$mean_input, sd = input$sd_input, graph = F))}
+        
+        
+        
     )
 
     output$Prob_func <- renderUI({
