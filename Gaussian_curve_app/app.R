@@ -1,7 +1,16 @@
+############################################################
+## Calculadora de Probabilidade em Distribuicoes Normais  ##
+## Autor Guilherme Viegas - guilhermeviegas1993@gmail.com ##
+############################################################
+
+library(dplyr)
+library(ggplot2)
+#install.packages("tigerstats")
+library(tigerstats)
 library(shiny)
 
+
 ui <- fluidPage(
-    # titlePanel("Distribuição de probabilidade Normal"),
     fluidRow(
         sidebarPanel(width = 3,
                      uiOutput(outputId = "ui_out")
@@ -17,7 +26,6 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-    library(tidyverse)
  
     output$ui_out <- renderUI({
         
